@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { coreRoutes } from './routes/core';
+import { dataRoutes } from './routes/data';
 import type { Services } from './services';
 
 export function createApp(s: Services): Hono {
@@ -14,6 +15,7 @@ export function createApp(s: Services): Hono {
 
   const api = new Hono();
   api.route('/', coreRoutes(s));
+  api.route('/', dataRoutes(s));
   app.route('/api', api);
   app.notFound((c) => c.json({ error: 'Not found' }, 404));
   return app;

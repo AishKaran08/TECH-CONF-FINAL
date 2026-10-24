@@ -315,7 +315,10 @@ export const TaskPatch = z.object({
   due: z.string().min(10).max(25).nullable().optional(),
   estimateHours: z.number().min(0.25).max(200).optional(),
   done: z.boolean().optional(),
+  /** Push the due date back one day and count the postponement. */
   postpone: z.boolean().optional(),
+  /** A deliberate new date: clears the postponement count. */
+  reschedule: z.boolean().optional(),
 });
 export type TaskPatch = z.infer<typeof TaskPatch>;
 
