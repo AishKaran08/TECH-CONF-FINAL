@@ -1,0 +1,35 @@
+# dependencies
+node_modules/
+
+# builds
+dist/
+build/
+*.tsbuildinfo
+coverage/
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# local data (SQLite / JSON store, uploads)
+server/data/
+*.sqlite
+*.sqlite-journal
+*.db
+*.db-journal
+
+# logs
+*.log
+npm-debug.log*
+
+# editors / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# test artifacts
+playwright-report/
+test-results/
