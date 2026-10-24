@@ -75,9 +75,13 @@ export class Workspace {
     return { ...rest, githubTokenMasked: maskToken(githubToken), hasGithubToken: githubToken.length > 0, aiAvailable: this.env.aiAvailable, model: this.env.model };
   }
 
-  /** AI may be used: key configured and the user has not chosen Local only. */
+  /**
+   * AI may be used: a key is configured, the user has not chosen Local only, and the one-time
+   * privacy notice was acknowledged. Enforced here on the server, not only in the UI.
+   */
   aiEnabled(): boolean {
-    return this.env.aiAvailable && !this.settings().localOnly;
+    const s = this.settings();
+    return this.env.aiAvailable && !s.localOnly && s.aiNoticeAck;
   }
 
   mode(): Mode {

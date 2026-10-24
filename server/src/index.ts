@@ -1,12 +1,15 @@
 import { serve } from '@hono/node-server';
 import { APP_NAME } from '@runway/shared';
 import { createBriefingService } from './ai/briefing';
+import { createAi } from './ai/client';
+import { extractProfileWithAi } from './ai/resume';
 import { createApp } from './app';
 import { config } from './config';
 import { EventHub } from './events';
 import { handleSettingsChange } from './routes/sources';
 import { Scheduler } from './scheduler';
 import type { Services } from './services';
+import { ResumeService } from './resume/service';
 import { createStore } from './store';
 import { codeforcesRunner, githubRunner, SyncService, timetableRunner } from './sync';
 import { Workspace } from './workspace';
@@ -15,14 +18,18 @@ const store = createStore(config.dataDir);
 const hub = new EventHub();
 const ws = new Workspace(store, hub, { aiAvailable: Boolean(config.anthropicApiKey), model: config.model, defaultSyncInterval: config.syncIntervalMinutes });
 
+const ai = createAi(config.anthropicApiKey, config.model);
+const resume = new ResumeService(ws, ai ? (text) => extractProfileWithAi(ai, text) : undefined);
+
 const sync = new SyncService(ws, hub, {
   github: githubRunner(ws, fetch),
   codeforces: codeforcesRunner(ws, fetch),
+  resume: resume.runner(),
   timetable: timetableRunner(ws, fetch),
 });
 const scheduler = new Scheduler(ws, sync);
 
-const services: Services = { ws, hub, sync, scheduler, briefing: createBriefingService(ws) };
+const services: Services = { ws, hub, sync, scheduler, resume, briefing: createBriefingService(ws) };
 services.onSettingsChanged = (before, after) => handleSettingsChange(services, before, after);
 
 const app = createApp(services);

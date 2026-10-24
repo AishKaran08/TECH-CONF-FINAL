@@ -5,6 +5,7 @@ import { Button, ErrorNote, Field, inputClass, Modal, SourceTag } from '../compo
 import { api } from '../lib/api';
 import { clsx, isStale, timeAgo } from '../lib/format';
 import { refresh, syncAll, toast, useApp } from '../lib/store';
+import { requireAiNotice } from './AiNotice';
 import { DemoToggle } from './Header';
 import { closeConnections, openConnections, usePanels, type ConnectionsTab } from './panelState';
 
@@ -293,6 +294,10 @@ function ResumeTab({ d }: { d: Dashboard }) {
   const input = useRef<HTMLInputElement>(null);
   const r = d.resume;
   const upload = async (file: File) => {
+    if (!(await requireAiNotice())) {
+      if (input.current) input.current.value = '';
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
