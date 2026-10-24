@@ -1,4 +1,7 @@
 import { serve } from '@hono/node-server';
+import { serveStatic } from '@hono/node-server/serve-static';
+import { existsSync } from 'node:fs';
+import { relative } from 'node:path';
 import { APP_NAME } from '@runway/shared';
 import { createBriefingService } from './ai/briefing';
 import { createAi } from './ai/client';
@@ -39,6 +42,12 @@ services.agent = new AgentService(services, ai);
 services.onSettingsChanged = (before, after) => handleSettingsChange(services, before, after);
 
 const app = createApp(services);
+// Production: serve the built web app from the same port (npm run build && npm start).
+if (existsSync(config.webDist)) {
+  const root = relative(process.cwd(), config.webDist);
+  app.use('/*', serveStatic({ root }));
+  app.get('*', serveStatic({ root, path: 'index.html' }));
+}
 scheduler.start(ws.settings().syncIntervalMinutes);
 
 const server = serve({ fetch: app.fetch, port: config.port, hostname: config.host }, (info) => {

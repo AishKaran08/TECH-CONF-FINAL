@@ -26,7 +26,7 @@ export function createApp(s: Services): Hono {
   api.route('/', resumeRoutes(s));
   api.route('/', sortRoutes(s));
   api.route('/', agentRoutes(s));
+  api.notFound((c) => c.json({ error: 'Not found' }, 404));
   app.route('/api', api);
-  app.notFound((c) => c.json({ error: 'Not found' }, 404));
   return app;
 }
