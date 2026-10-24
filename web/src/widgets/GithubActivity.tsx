@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { addDays, parseDateOnly, toDateOnly, weekdayIndex, type Dashboard } from '@runway/shared';
 import { Icon } from '../components/Icon';
-import { Button, Card, Empty, SourceLine } from '../components/ui';
+import { Button, Card, Empty, ErrorNote, SourceLine } from '../components/ui';
+import { syncAll } from '../lib/store';
 import { clsx, rangeLabel } from '../lib/format';
 import { useInView, useTween } from '../lib/motion';
 import { openConnections } from '../panels/panelState';
@@ -84,7 +85,9 @@ export function GithubActivity({ d, index }: { d: Dashboard; index: number }) {
       actions={gh.profile && <a href={gh.profile.htmlUrl} target="_blank" rel="noreferrer" className="tr rounded-md px-1.5 py-0.5 text-xs text-zinc-400 hover:text-zinc-100">@{gh.profile.login}</a>}
       footer={gh.profile && <SourceLine origins={[d.mode === 'demo' ? 'demo' : 'github']} syncedAt={status?.lastSyncedAt} />}
     >
-      {!gh.calendar || !grid ? (
+      {!gh.profile && d.settings.githubUsername && d.mode === 'real' ? (
+        <PendingSource name="GitHub" who={`@${d.settings.githubUsername}`} error={status?.state === 'error' ? status.lastError : null} onRetry={() => void syncAll(['github'])} />
+      ) : !gh.calendar || !grid ? (
         <Empty icon="github" title={gh.profile ? 'No public activity in the last 90 days' : 'Connect GitHub to see your activity'} action={!gh.profile && <Button size="sm" icon="plug" onClick={() => openConnections('github')}>Connect GitHub</Button>}>
           {gh.profile ? 'Push to a public repository, or add a token in Connections to include your full contribution calendar.' : 'A username is enough. Runway reads your public profile, repositories and events through the official API.'}
         </Empty>
@@ -177,5 +180,17 @@ function Row({ row, weeks, max }: { row: number; weeks: { date: string; count: n
         );
       })}
     </>
+  );
+}
+
+/** A source that is set up but has no data yet: either waiting for its first sync or failed. */
+export function PendingSource({ name, who, error, onRetry }: { name: string; who: string; error: string | null; onRetry: () => void }) {
+  return (
+    <div className="flex flex-1 flex-col items-start justify-center gap-3">
+      {error ? <ErrorNote>{error}</ErrorNote> : <p className="text-sm text-zinc-300">{name} is set to {who}. Waiting for the first sync.</p>}
+      <Button size="sm" icon="sync" onClick={onRetry}>
+        {error ? 'Retry' : 'Sync now'}
+      </Button>
+    </div>
   );
 }

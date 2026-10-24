@@ -52,7 +52,7 @@ export class GithubClient {
     const reset = res.headers.get('x-ratelimit-reset');
     const at = reset ? new Date(Number(reset) * 1000).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : 'soon';
     return new SourceError(
-      `GitHub's rate limit is used up until ${at}. ${this.token ? 'It resets on its own.' : 'Adding a personal access token in Connections raises the limit.'} The last good data stays on screen.`,
+      `GitHub's rate limit is used up until ${at}. ${this.token ? 'It resets on its own.' : 'Adding a personal access token in Connections raises the limit.'}`,
       'rate_limited',
     );
   }

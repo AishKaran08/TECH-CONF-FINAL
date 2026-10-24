@@ -42,7 +42,7 @@ describe('SyncService', () => {
     if (res.syncId === null) throw new Error('expected start');
     const out = await res.done;
     expect(out.summary.map((s) => s.ok)).toEqual([true, false]);
-    expect(out.text).toMatch(/Codeforces failed: Could not reach Codeforces\. Kept the last good data\./);
+    expect(out.text).toBe('GitHub +1 event. Codeforces failed: Could not reach Codeforces.');
     expect(ws.status('codeforces')).toMatchObject({ state: 'error', lastError: 'Could not reach Codeforces.' });
   });
 

@@ -2,7 +2,9 @@ import type { Dashboard } from '@runway/shared';
 import { Icon } from '../components/Icon';
 import { Button, Card, Empty, SourceLine, SourceTag } from '../components/ui';
 import { clsx, timeAgo } from '../lib/format';
+import { syncAll } from '../lib/store';
 import { openConnections } from '../panels/panelState';
+import { PendingSource } from './GithubActivity';
 
 export function RecentSubmissions({ d, index }: { d: Dashboard; index: number }) {
   const cf = d.sources.find((s) => s.source === 'codeforces');
@@ -22,7 +24,9 @@ export function RecentSubmissions({ d, index }: { d: Dashboard; index: number })
       )}
       footer={items.length > 0 && <SourceLine origins={[...new Set(items.map((s) => s.origin))]} syncedAt={cf?.lastSyncedAt ?? null} />}
     >
-      {items.length === 0 ? (
+      {items.length === 0 && !user && d.settings.codeforcesHandle && d.mode === 'real' ? (
+        <PendingSource name="Codeforces" who={d.settings.codeforcesHandle} error={cf?.state === 'error' ? cf.lastError : null} onRetry={() => void syncAll(['codeforces'])} />
+      ) : items.length === 0 ? (
         <Empty icon="code" title="No submissions yet" action={<Button size="sm" icon="plug" onClick={() => openConnections('codeforces')}>Connect Codeforces</Button>}>
           Add your Codeforces handle to see accepted and failed submissions here as they happen.
         </Empty>

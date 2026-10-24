@@ -144,6 +144,7 @@ export class SyncService {
     const results = await Promise.all(
       sources.map(async (source): Promise<SyncSummaryItem> => {
         const runner = this.runners[source]!;
+        const hadData = this.ws.status(source).lastSyncedAt !== null;
         const report: Report = (progress, message) => this.hub.emit({ type: 'sync.progress', syncId, source, state: 'syncing', progress, message });
         this.ws.setStatus(source, { state: 'syncing' });
         report(0.02, 'Starting');
@@ -158,13 +159,13 @@ export class SyncService {
           // Keep the last good snapshot: stored data is untouched on failure.
           this.ws.setStatus(source, { state: 'error', lastError: msg });
           this.hub.emit({ type: 'sync.progress', syncId, source, state: 'error', progress: 1, message: msg });
-          return { source, ok: false, text: `${SOURCE_NAMES[source]} failed: ${msg}` };
+          return { source, ok: false, text: `${SOURCE_NAMES[source]} failed: ${msg}${hadData ? ' Showing the last good data.' : ''}` };
         }
       }),
     );
     const failed = results.filter((r) => !r.ok);
     const okText = results.filter((r) => r.ok).map((r) => r.text).join(', ');
-    const text = failed.length === 0 ? okText : [okText, ...failed.map((f) => f.text)].filter(Boolean).join('. ') + (failed.length ? ' Kept the last good data.' : '');
+    const text = failed.length === 0 ? okText : [okText, ...failed.map((f) => f.text)].filter(Boolean).join('. ');
     logInfo('sync', `${trigger} sync of ${sources.join(',')} finished in ${Date.now() - started}ms (${failed.length} failed)`);
     this.hub.emit({ type: 'sync.done', syncId, summary: results, text });
     this.ws.changed('all');
