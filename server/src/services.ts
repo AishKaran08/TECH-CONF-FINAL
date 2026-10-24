@@ -2,6 +2,7 @@ import type { Settings } from '@runway/shared';
 import type { BriefingService } from './ai/briefing';
 import type { EventHub } from './events';
 import type { ResumeService } from './resume/service';
+import type { SortService } from './sort';
 import type { SyncService } from './sync';
 import type { Workspace } from './workspace';
 
@@ -13,5 +14,6 @@ export interface Services {
   briefing?: BriefingService;
   sync?: SyncService;
   resume?: ResumeService;
+  sort?: SortService;
   onSettingsChanged?: (before: Settings, after: Settings) => void;
 }

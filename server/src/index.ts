@@ -2,6 +2,7 @@ import { serve } from '@hono/node-server';
 import { APP_NAME } from '@runway/shared';
 import { createBriefingService } from './ai/briefing';
 import { createAi } from './ai/client';
+import { rankProjectsWithAi } from './ai/rank';
 import { extractProfileWithAi } from './ai/resume';
 import { createApp } from './app';
 import { config } from './config';
@@ -10,6 +11,7 @@ import { handleSettingsChange } from './routes/sources';
 import { Scheduler } from './scheduler';
 import type { Services } from './services';
 import { ResumeService } from './resume/service';
+import { SortService } from './sort';
 import { createStore } from './store';
 import { codeforcesRunner, githubRunner, SyncService, timetableRunner } from './sync';
 import { Workspace } from './workspace';
@@ -29,7 +31,8 @@ const sync = new SyncService(ws, hub, {
 });
 const scheduler = new Scheduler(ws, sync);
 
-const services: Services = { ws, hub, sync, scheduler, resume, briefing: createBriefingService(ws) };
+const sort = new SortService(ws, ai ? (p, role, skills) => rankProjectsWithAi(ai, p, role, skills) : undefined);
+const services: Services = { ws, hub, sync, scheduler, resume, sort, briefing: createBriefingService(ws) };
 services.onSettingsChanged = (before, after) => handleSettingsChange(services, before, after);
 
 const app = createApp(services);

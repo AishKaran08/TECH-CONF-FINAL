@@ -3,6 +3,7 @@ import { HTTPException } from 'hono/http-exception';
 import { coreRoutes } from './routes/core';
 import { dataRoutes } from './routes/data';
 import { resumeRoutes } from './routes/resume';
+import { sortRoutes } from './routes/sort';
 import { sourceRoutes } from './routes/sources';
 import { syncRoutes } from './routes/sync';
 import type { Services } from './services';
@@ -22,6 +23,7 @@ export function createApp(s: Services): Hono {
   api.route('/', syncRoutes(s));
   api.route('/', sourceRoutes(s));
   api.route('/', resumeRoutes(s));
+  api.route('/', sortRoutes(s));
   app.route('/api', api);
   app.notFound((c) => c.json({ error: 'Not found' }, 404));
   return app;
