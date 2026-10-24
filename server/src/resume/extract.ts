@@ -76,7 +76,7 @@ export async function extractResumeText(fileName: string, buf: Uint8Array): Prom
     if (err instanceof ResumeError) throw err;
     throw new ResumeError(kind === 'pdf' ? 'Could not read that PDF. If it is a scanned image, export a text PDF instead.' : 'Could not read that file.');
   }
-  text = text.replace(/\u0000/g, '').replace(/\r\n?/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  text = text.replaceAll(String.fromCharCode(0), '').replace(/\r\n?/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
   if (text.length < 40) throw new ResumeError('Very little text was found. If the PDF is a scanned image, export a text-based PDF instead.');
   return { kind, text: text.slice(0, MAX_RESUME_CHARS) };
 }
