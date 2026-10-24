@@ -1,4 +1,5 @@
 import type { Settings } from '@runway/shared';
+import type { AgentService } from './agent/agent';
 import type { BriefingService } from './ai/briefing';
 import type { EventHub } from './events';
 import type { ResumeService } from './resume/service';
@@ -15,5 +16,6 @@ export interface Services {
   sync?: SyncService;
   resume?: ResumeService;
   sort?: SortService;
+  agent?: AgentService;
   onSettingsChanged?: (before: Settings, after: Settings) => void;
 }

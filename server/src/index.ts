@@ -4,6 +4,8 @@ import { createBriefingService } from './ai/briefing';
 import { createAi } from './ai/client';
 import { rankProjectsWithAi } from './ai/rank';
 import { extractProfileWithAi } from './ai/resume';
+import { AgentService } from './agent/agent';
+import { writeBriefingWithAi } from './ai/briefingAi';
 import { createApp } from './app';
 import { config } from './config';
 import { EventHub } from './events';
@@ -32,7 +34,8 @@ const sync = new SyncService(ws, hub, {
 const scheduler = new Scheduler(ws, sync);
 
 const sort = new SortService(ws, ai ? (p, role, skills) => rankProjectsWithAi(ai, p, role, skills) : undefined);
-const services: Services = { ws, hub, sync, scheduler, resume, sort, briefing: createBriefingService(ws) };
+const services: Services = { ws, hub, sync, scheduler, resume, sort, briefing: createBriefingService(ws, ai ? (ctx) => writeBriefingWithAi(ai, ctx) : undefined) };
+services.agent = new AgentService(services, ai);
 services.onSettingsChanged = (before, after) => handleSettingsChange(services, before, after);
 
 const app = createApp(services);

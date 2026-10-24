@@ -17,7 +17,7 @@ function ScopeBlock({ s }: { s: ScopePreview }) {
     <section className="rounded-xl border border-zinc-800 p-3.5">
       <header className="mb-2 flex flex-wrap items-baseline gap-2">
         <h3 className="text-sm font-medium text-zinc-100">{SCOPE_TITLE[s.scope]}</h3>
-        <span className="text-xs text-zinc-400">{METHOD[s.method]}</span>
+        <span className="text-xs text-zinc-400">{s.scope === 'skills' ? 'Strongest evidence first' : METHOD[s.method]}</span>
         <span className="num ml-auto text-xs text-zinc-400">{s.moves.length} move{s.moves.length === 1 ? '' : 's'}</span>
       </header>
       {s.moves.length === 0 ? (

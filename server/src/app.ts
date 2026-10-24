@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
+import { agentRoutes } from './routes/agent';
 import { coreRoutes } from './routes/core';
 import { dataRoutes } from './routes/data';
 import { resumeRoutes } from './routes/resume';
@@ -24,6 +25,7 @@ export function createApp(s: Services): Hono {
   api.route('/', sourceRoutes(s));
   api.route('/', resumeRoutes(s));
   api.route('/', sortRoutes(s));
+  api.route('/', agentRoutes(s));
   app.route('/api', api);
   app.notFound((c) => c.json({ error: 'Not found' }, 404));
   return app;
